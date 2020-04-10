@@ -46,7 +46,7 @@ class Round
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Player")
-     * @Groups({"rounds:update", "rounds:read"})
+     * @Groups({"rounds:update", "rounds:read", "games:read"})
      */
     private $winner;
 

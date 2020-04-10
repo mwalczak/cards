@@ -51,6 +51,7 @@ class Game
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Round", mappedBy="game")
+     * @Groups({"games:read"})
      */
     private $rounds;
 
@@ -173,7 +174,10 @@ class Game
     {
         $scores = [];
         foreach($this->getRounds() as $round){
-            if(!isset($playerWins[$round->getWinner()->getName()])){
+            if(!$round->getWinner()){
+                continue;
+            }
+            if(!isset($scores[$round->getWinner()->getName()])){
                 $scores[$round->getWinner()->getName()] = 1;
             } else {
                 $scores[$round->getWinner()->getName()]++;
