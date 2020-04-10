@@ -34,7 +34,7 @@ class Player
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"players:write", "players:read"})
+     * @Groups({"players:write", "players:read", "games:read"})
      */
     private $name;
 
@@ -115,4 +115,10 @@ class Player
 
         return $this;
     }
+
+    public function getCardsCount(): int
+    {
+        return count($this->getCards());
+    }
+
 }

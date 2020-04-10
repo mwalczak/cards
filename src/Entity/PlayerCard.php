@@ -31,6 +31,17 @@ class PlayerCard
      */
     private $card;
 
+    /**
+     * PlayerCard constructor.
+     * @param $player
+     * @param $card
+     */
+    public function __construct(Player $player, AnswerCard $card)
+    {
+        $this->player = $player;
+        $this->card = $card;
+    }
+
     public function getId(): ?int
     {
         return $this->id;

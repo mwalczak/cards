@@ -31,6 +31,7 @@ class Game
      * @ORM\GeneratedValue(strategy="CUSTOM")
      * @CustomIdGenerator(class="App\Generator\UniqIdGenerator")
      * @ORM\Column(type="string", length=13, unique=true, options={"fixed" = true})
+     * @Groups({"games:read"})
      */
     private $id;
 
@@ -46,6 +47,7 @@ class Game
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\Player", mappedBy="game")
+     * @Groups({"games:read"})
      */
     private $players;
 
@@ -55,9 +57,15 @@ class Game
      */
     private $rounds;
 
+    /**
+     * @Groups({"games:write"})
+     */
+    private $name;
+
     public function __construct()
     {
         $this->players = new ArrayCollection();
+        $this->rounds = new ArrayCollection();
     }
 
     public function getId(): ?string
@@ -157,6 +165,18 @@ class Game
         return $this;
     }
 
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+
+        return $this;
+    }
+
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
     /**
      * @return int
      * @Groups({"games:read"})
@@ -198,5 +218,16 @@ class Game
         }
 
         return $usedQuestions;
+    }
+
+    public function getUsedAnswers(): array
+    {
+        $usedAnswers = [];
+        foreach($this->getRounds() as $round){
+            foreach($round->getAnswerCards() as $answerCard){
+                $usedAnswers[] = $answerCard->getId();
+            }
+        }
+        return $usedAnswers;
     }
 }
