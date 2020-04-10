@@ -7,6 +7,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\CustomIdGenerator;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  *  @ApiResource(
@@ -58,7 +59,7 @@ class Game
         $this->players = new ArrayCollection();
     }
 
-    public function getId(): ?int
+    public function getId(): ?string
     {
         return $this->id;
     }
@@ -153,5 +154,32 @@ class Game
         }
 
         return $this;
+    }
+
+    /**
+     * @return int
+     * @Groups({"games:read"})
+     */
+    public function getRoundsCount(): int
+    {
+        return $this->getRounds()->count();
+    }
+
+    /**
+     * @return array
+     * @Groups({"games:read"})
+     */
+    public function getScores(): array
+    {
+        $scores = [];
+        foreach($this->getRounds() as $round){
+            if(!isset($playerWins[$round->getWinner()->getName()])){
+                $scores[$round->getWinner()->getName()] = 1;
+            } else {
+                $scores[$round->getWinner()->getName()]++;
+            }
+        }
+        krsort($scores);
+        return $scores;
     }
 }

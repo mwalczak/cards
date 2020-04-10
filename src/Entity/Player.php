@@ -41,15 +41,9 @@ class Player
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Game", inversedBy="players")
      * @ORM\JoinColumn(nullable=false)
+     * @Groups({"players:write"})
      */
     private $game;
-
-    /**
-     * @SerializedName("game")
-     * @Groups({"players:write"})
-     * @Assert\NotBlank()
-     */
-    private $gameCode;
 
     /**
      * @ORM\OneToMany(targetEntity="App\Entity\PlayerCard", mappedBy="player", orphanRemoval=true)
@@ -89,18 +83,6 @@ class Player
         $this->game = $game;
 
         return $this;
-    }
-
-    public function setGameCode(string $gameCode): self
-    {
-        $this->gameCode = $gameCode;
-
-        return $this;
-    }
-
-    public function getGameCode(): string
-    {
-        return $this->gameCode;
     }
 
     /**

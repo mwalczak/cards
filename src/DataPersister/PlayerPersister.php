@@ -37,20 +37,14 @@ class PlayerPersister
      */
     public function persist($data)
     {
-        if ($code = $data->getGameCode()) {
-            $game = $this->entityManager->getRepository(Game::class)->find($code);
-            if (!$game) {
-                throw new NotFoundHttpException('game not found: ' . $code);
-            }
-            $data->setGame($game);
-        } else {
+        if (!$data->getGame()) {
             throw new BadRequestHttpException('game code must be provided');
         }
 
         $this->entityManager->persist($data);
         $this->entityManager->flush();
 
-        $this->logger->notice('User created (name: ' . $data->getName() . ', game: ' . $code . ')');
+        $this->logger->notice('Player created (name: ' . $data->getName() . ', game: ' . $code . ')');
     }
 
     /**
