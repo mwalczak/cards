@@ -46,6 +46,8 @@ class Player
     private $game;
 
     /**
+     * @var PlayerCard[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\PlayerCard", mappedBy="player", orphanRemoval=true)
      * @Groups({"players:read"})
      */
@@ -91,6 +93,16 @@ class Player
     public function getCards(): Collection
     {
         return $this->cards;
+    }
+
+    public function getCardsIds(): array
+    {
+        $cardsIds = [];
+        foreach($this->cards as $card){
+            $cardsIds[] = $card->getCard()->getId();
+        }
+
+        return $cardsIds;
     }
 
     public function addCard(PlayerCard $card): self

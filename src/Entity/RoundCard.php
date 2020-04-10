@@ -4,6 +4,8 @@ namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
 use Doctrine\ORM\Mapping as ORM;
+use Doctrine\ORM\Mapping\UniqueConstraint;
+use Symfony\Bridge\Doctrine\Validator\Constraints\UniqueEntity;
 use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
@@ -11,11 +13,21 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     collectionOperations={
  *          "post"
  *     },
- *     itemOperations={},
+ *     itemOperations={
+ *          "get"
+ *     },
  *     normalizationContext={"groups"={"round_cards:read"}},
  *     denormalizationContext={"groups"={"round_cards:write"}}
  * )
  * @ORM\Entity(repositoryClass="App\Repository\RoundCardRepository")
+ * @ORM\Table(
+ *     uniqueConstraints={@UniqueConstraint(name="card_unique",columns={"round_id", "card_id"})}
+ * )
+ * @UniqueEntity(
+ *     fields={"round", "card"},
+ *     errorPath="round",
+ *     message="This card was already played in this round"
+ * )
  */
 class RoundCard
 {
