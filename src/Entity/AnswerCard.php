@@ -8,7 +8,9 @@ use Doctrine\ORM\Mapping as ORM;
 /**
  * @ApiResource(
  *     collectionOperations={},
- *     itemOperations={},
+ *     itemOperations={
+ *          "get"
+ *     },
  *     normalizationContext={"groups"={"answer_cards:read"}},
  *     denormalizationContext={"groups"={"answer_cards:write"}}
  * )

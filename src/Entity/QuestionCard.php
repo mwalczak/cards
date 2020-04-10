@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Serializer\Annotation\Groups;
 
 /**
  * @ORM\Entity(repositoryClass="App\Repository\QuestionCardRepository")
@@ -11,6 +12,7 @@ class QuestionCard extends AbstractCard implements CardInterface
 {
     /**
      * @ORM\Column(type="integer")
+     * @Groups({"rounds:read", "players:read"})
      */
     private $answerCount = 1;
 
