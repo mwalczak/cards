@@ -44,7 +44,7 @@ class PlayerPersister
         $this->entityManager->persist($data);
         $this->entityManager->flush();
 
-        $this->logger->notice('Player created (name: ' . $data->getName() . ', game: ' . $code . ')');
+        $this->logger->notice('Player created (name: ' . $data->getName() . ', game: ' . $data->getGame()->getId() . ')');
     }
 
     /**
