@@ -42,7 +42,7 @@ class AbstractCard
     /**
      * @return string
      *
-     * @Groups({"rounds:read", "players:read"})
+     * @Groups({"rounds:read", "players:read", "games:read"})
      */
     public function getImage(): string
     {

@@ -12,7 +12,7 @@ class QuestionCard extends AbstractCard implements CardInterface
 {
     /**
      * @ORM\Column(type="integer")
-     * @Groups({"rounds:read", "players:read"})
+     * @Groups({"rounds:read", "players:read", "games:read"})
      */
     private $answerCount = 1;
 

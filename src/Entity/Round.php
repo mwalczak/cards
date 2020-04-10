@@ -47,7 +47,7 @@ class Round
 
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\QuestionCard")
-     * @Groups({"rounds:read"})
+     * @Groups({"rounds:read", "games:read"})
      */
     private $questionCard;
 

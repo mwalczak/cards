@@ -116,6 +116,10 @@ class Player
         return $this;
     }
 
+    /**
+     * @return int
+     * @Groups({"games:read"})
+     */
     public function getCardsCount(): int
     {
         return count($this->getCards());

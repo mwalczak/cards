@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Enum\RoundStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -178,6 +179,21 @@ class Game
     }
 
     /**
+     * @return Round|null
+     * @Groups({"games:read"})
+     */
+    public function getActiveRound(): ?Round
+    {
+        foreach($this->getRounds() as $round){
+            if($round->getStatus() == RoundStatus::NEW()){
+                return $round;
+            }
+        }
+
+        return null;
+    }
+
+    /**
      * @return int
      * @Groups({"games:read"})
      */
@@ -229,5 +245,14 @@ class Game
             }
         }
         return $usedAnswers;
+    }
+
+    /**
+     * @return int
+     * @Groups({"games:read"})
+     */
+    public function getUsedAnswersCount(): int
+    {
+        return count($this->getUsedAnswers());
     }
 }
