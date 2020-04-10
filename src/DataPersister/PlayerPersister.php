@@ -4,13 +4,14 @@
 namespace App\DataPersister;
 
 
+use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Player;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 
-class PlayerPersister
+class PlayerPersister implements DataPersisterInterface
 {
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;

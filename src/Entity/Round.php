@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\Enum\RoundStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
@@ -15,7 +16,8 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     },
  *     itemOperations={
  *         "get",
- *         "put"={"denormalization_context"={"groups"={"rounds:update"}}}
+ *         "put"={"denormalization_context"={"groups"={"rounds:update"}}},
+ *         "delete"
  *     },
  *     normalizationContext={"groups"={"rounds:read"}},
  *     denormalizationContext={"groups"={"rounds:write"}}
@@ -56,9 +58,16 @@ class Round
      */
     private $answerCards;
 
+    /**
+     * @ORM\Column(type="string", length=10)
+     * @Groups({"rounds:update", "rounds:read", "games:read"})
+     */
+    private $status;
+
     public function __construct()
     {
         $this->answerCards = new ArrayCollection();
+        $this->status = RoundStatus::NEW();
     }
 
     public function getId(): ?int
@@ -129,6 +138,18 @@ class Round
                 $answerCard->setRound(null);
             }
         }
+
+        return $this;
+    }
+
+    public function getStatus(): ?string
+    {
+        return $this->status;
+    }
+
+    public function setStatus(string $status): self
+    {
+        $this->status = $status;
 
         return $this;
     }

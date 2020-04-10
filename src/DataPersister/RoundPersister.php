@@ -4,17 +4,15 @@
 namespace App\DataPersister;
 
 
-use App\Entity\Game;
-use App\Entity\Player;
-use App\Entity\QuestionCard;
+use ApiPlatform\Core\DataPersister\DataPersisterInterface;
 use App\Entity\Round;
+use App\Enum\RoundStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
-class RoundPersister
+class RoundPersister implements DataPersisterInterface
 {
     private EntityManagerInterface $entityManager;
     private LoggerInterface $logger;
@@ -41,7 +39,17 @@ class RoundPersister
     {
         //draw question card
         $game = $data->getGame();
-        $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findNotUsedInGame($game);
+
+        $unfinishedRounds = $this->entityManager->getRepository(Round::class)->findBy([
+            'game' => $game,
+            'status' => RoundStatus::NEW()
+        ]);
+
+        if(count($unfinishedRounds) && $unfinishedRounds[0]->getId()!=$data->getId()){
+            throw new BadRequestHttpException('there are unfinished rounds in this game: '.$unfinishedRounds[0]->getId());
+        }
+
+//        $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findNotUsedInGame($game);
         //keep 10 cards on players hands
 
         $this->entityManager->persist($data);
@@ -52,9 +60,13 @@ class RoundPersister
 
     /**
      * @inheritDoc
+     * @param Round $data
      */
     public function remove($data)
     {
+        if($data->getStatus()===RoundStatus::FINISHED()){
+            throw new BadRequestHttpException('can\'t cancel finished round');
+        }
         $this->entityManager->remove($data);
         $this->entityManager->flush();
     }

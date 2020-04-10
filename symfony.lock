@@ -113,6 +113,9 @@
     "monolog/monolog": {
         "version": "2.0.2"
     },
+    "myclabs/php-enum": {
+        "version": "1.7.6"
+    },
     "nelmio/cors-bundle": {
         "version": "1.5",
         "recipe": {
