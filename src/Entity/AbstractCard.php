@@ -45,6 +45,6 @@ class AbstractCard
      */
     public function getImage(): string
     {
-        return '/media/cards/'.$this->value;
+        return '/media/cards/'.$this->value.'.png';
     }
 }

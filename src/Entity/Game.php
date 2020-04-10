@@ -186,4 +186,17 @@ class Game
         krsort($scores);
         return $scores;
     }
+
+    public function getUsedQuestions(): array
+    {
+        $usedQuestions = [];
+        foreach($this->getRounds() as $round){
+            if(!$round->getQuestionCard()){
+                continue;
+            }
+            $usedQuestions[] = $round->getQuestionCard()->getId();
+        }
+
+        return $usedQuestions;
+    }
 }

@@ -22,6 +22,11 @@ use Symfony\Component\Serializer\Annotation\Groups;
  *     normalizationContext={"groups"={"rounds:read"}},
  *     denormalizationContext={"groups"={"rounds:write"}}
  * )
+ * @ORM\EntityListeners(
+ *     {
+ *          "App\EventListener\RoundUpdateListener"
+ *     }
+ * )
  * @ORM\Entity(repositoryClass="App\Repository\RoundRepository")
  */
 class Round

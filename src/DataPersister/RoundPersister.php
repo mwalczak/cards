@@ -5,6 +5,7 @@ namespace App\DataPersister;
 
 
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
+use App\Entity\QuestionCard;
 use App\Entity\Round;
 use App\Enum\RoundStatus;
 use Doctrine\ORM\EntityManagerInterface;
@@ -49,7 +50,11 @@ class RoundPersister implements DataPersisterInterface
             throw new BadRequestHttpException('there are unfinished rounds in this game: '.$unfinishedRounds[0]->getId());
         }
 
-//        $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findNotUsedInGame($game);
+        if(!$data->getQuestionCard()){
+            $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findRandomOneNotUsed($game->getUsedQuestions());
+            $data->setQuestionCard($questionCard);
+        }
+
         //keep 10 cards on players hands
 
         $this->entityManager->persist($data);
@@ -64,7 +69,7 @@ class RoundPersister implements DataPersisterInterface
      */
     public function remove($data)
     {
-        if($data->getStatus()===RoundStatus::FINISHED()){
+        if($data->getStatus() == RoundStatus::FINISHED()){
             throw new BadRequestHttpException('can\'t cancel finished round');
         }
         $this->entityManager->remove($data);
