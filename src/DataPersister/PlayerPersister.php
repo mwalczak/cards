@@ -4,12 +4,10 @@
 namespace App\DataPersister;
 
 
-use App\Entity\Game;
 use App\Entity\Player;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
-use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 
 
 class PlayerPersister
