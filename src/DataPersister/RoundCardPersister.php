@@ -5,6 +5,7 @@ namespace App\DataPersister;
 
 
 use ApiPlatform\Core\DataPersister\DataPersisterInterface;
+use App\Entity\PlayerCard;
 use App\Entity\RoundCard;
 use Doctrine\ORM\EntityManagerInterface;
 use Psr\Log\LoggerInterface;
@@ -44,6 +45,12 @@ class RoundCardPersister implements DataPersisterInterface
             if (!in_array($data->getCard()->getId(), $player->getCardsIds())) {
                 throw new BadRequestHttpException('bad card played');
             }
+            $playerCard = $this->entityManager->getRepository(PlayerCard::class)->findOneBy([
+                'player' => $player,
+                'card' => $data->getCard()
+            ]);
+            $player->removeCard($playerCard);
+            $this->entityManager->remove($playerCard);
 
             $this->entityManager->persist($data);
             $this->entityManager->flush();

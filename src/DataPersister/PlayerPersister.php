@@ -40,6 +40,10 @@ class PlayerPersister implements DataPersisterInterface
             throw new BadRequestHttpException('game code must be provided');
         }
 
+        if(in_array($data->getName(), $data->getGame()->getPlayersNames())){
+            throw new BadRequestHttpException('there is already a player with that name playing the game');
+        }
+
         $this->entityManager->persist($data);
         $this->entityManager->flush();
 

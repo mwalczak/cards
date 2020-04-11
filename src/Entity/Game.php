@@ -220,6 +220,12 @@ class Game
             }
         }
         krsort($scores);
+        foreach($this->getPlayers() as $player){
+            if(!isset($scores[$player->getName()])){
+                $scores[$player->getName()] = 0;
+            }
+        }
+
         return $scores;
     }
 
@@ -255,4 +261,29 @@ class Game
     {
         return count($this->getUsedAnswers());
     }
+
+
+    /**
+     * @return int
+     * @Groups({"games:read"})
+     */
+    public function getPlayersCount(): int
+    {
+        return count($this->getPlayers());
+    }
+
+    /**
+     * @return string[]
+     */
+    public function getPlayersNames(): array
+    {
+        $names = [];
+        foreach($this->getPlayers() as $player){
+            $names[] = $player->getName();
+        }
+
+        return $names;
+    }
+
+
 }
