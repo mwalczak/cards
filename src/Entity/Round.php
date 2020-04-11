@@ -158,4 +158,13 @@ class Round
 
         return $this;
     }
+
+    /**
+     * @return int
+     * @Groups({"rounds:read", "games:read"})
+     */
+    public function getCardsPlayedCount(): int
+    {
+        return count($this->getAnswerCards());
+    }
 }
