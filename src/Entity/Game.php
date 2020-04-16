@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\DTO\ScoreDTO;
 use App\Enum\RoundStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -214,19 +215,21 @@ class Game
                 continue;
             }
             if(!isset($scores[$round->getWinner()->getName()])){
-                $scores[$round->getWinner()->getName()] = 1;
+                $score = new ScoreDTO($round->getWinner()->getName(), 1);
+                $scores[$round->getWinner()->getName()] = $score;
             } else {
-                $scores[$round->getWinner()->getName()]++;
+                $scores[$round->getWinner()->getName()]->score++;
             }
         }
         krsort($scores);
         foreach($this->getPlayers() as $player){
             if(!isset($scores[$player->getName()])){
-                $scores[$player->getName()] = 0;
+                $score = new ScoreDTO($player->getName(), 0);
+                $scores[$player->getName()] = $score;
             }
         }
 
-        return $scores;
+        return array_values($scores);
     }
 
     public function getUsedQuestions(): array
