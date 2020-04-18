@@ -29,12 +29,13 @@ class Player
      * @ORM\Id()
      * @ORM\GeneratedValue()
      * @ORM\Column(type="integer")
+     * @Groups({"players:read", "games:read"})
      */
     private $id;
 
     /**
      * @ORM\Column(type="string", length=255)
-     * @Groups({"players:write", "players:read", "games:read"})
+     * @Groups({"players:write", "players:read", "games:read", "rounds:read"})
      */
     private $name;
 
