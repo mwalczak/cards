@@ -39,16 +39,25 @@ class RoundUpdateListener
 
     private function drawCards(EntityManagerInterface $em, Round $round)
     {
-        $cardCount = $_ENV['CARDS_COUNT'] * count($round->getPlayersAnswers()) - $round->getCardsPlayedCount();
-        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $cardCount);
-        $newCardsPerPlayer = floor(count($newCards) / count($round->getPlayersAnswers()));
+        $activePlayers = [];
+        if(count($round->getPlayersAnswers())){
+            foreach($round->getPlayersAnswers() as $playerCards){
+                $activePlayers[] = $playerCards->player;
+            }
+        } else {
+            $activePlayers = $round->getGame()->getPlayers();
+        }
 
-        foreach ($round->getPlayersAnswers() as $playerCards) {
+        $cardCount = $_ENV['CARDS_COUNT'] * count($activePlayers) - $round->getCardsPlayedCount();
+        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $cardCount);
+        $newCardsPerPlayer = floor(count($newCards) / count($activePlayers));
+
+        foreach ($activePlayers as $player) {
             $playerGiven = 0;
-            while (!empty($newCards) && $playerGiven < $newCardsPerPlayer && $playerCards->player->getCardsCount() < $_ENV['CARDS_COUNT']) {
-                $card = new PlayerCard($playerCards->player, array_shift($newCards));
+            while (!empty($newCards) && $playerGiven < $newCardsPerPlayer && $player->getCardsCount() < $_ENV['CARDS_COUNT']) {
+                $card = new PlayerCard($player, array_shift($newCards));
                 $em->persist($card);
-                $playerCards->player->addCard($card);
+                $player->addCard($card);
             }
         }
 
