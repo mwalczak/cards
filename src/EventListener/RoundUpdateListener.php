@@ -42,14 +42,13 @@ class RoundUpdateListener
         $cardCount = $_ENV['CARDS_COUNT'] * count($round->getPlayersAnswers()) - $round->getCardsPlayedCount();
         $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $cardCount);
         $newCardsPerPlayer = floor(count($newCards) / count($round->getPlayersAnswers()));
-        foreach ($newCards as $card) {
-            foreach ($round->getPlayersAnswers() as $playerCards) {
-                $playerGiven = 0;
-                while ($playerGiven < $newCardsPerPlayer && $playerCards->player->getCardsCount() < $_ENV['CARDS_COUNT']) {
-                    $card = new PlayerCard($playerCards->player, $card);
-                    $em->persist($card);
-                    $playerCards->player->addCard($card);
-                }
+
+        foreach ($round->getPlayersAnswers() as $playerCards) {
+            $playerGiven = 0;
+            while (!empty($newCards) && $playerGiven < $newCardsPerPlayer && $playerCards->player->getCardsCount() < $_ENV['CARDS_COUNT']) {
+                $card = new PlayerCard($playerCards->player, array_shift($newCards));
+                $em->persist($card);
+                $playerCards->player->addCard($card);
             }
         }
 
