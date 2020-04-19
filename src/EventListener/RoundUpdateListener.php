@@ -11,11 +11,22 @@ use App\Enum\RoundStatus;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
+use Psr\Log\LoggerInterface;
 use Symfony\Component\HttpKernel\Exception\BadRequestHttpException;
 
 
 class RoundUpdateListener
 {
+    /**
+     * @var LoggerInterface
+     */
+    private LoggerInterface $logger;
+
+    public function __construct(LoggerInterface $logger)
+    {
+        $this->logger = $logger;
+    }
+
     public function preUpdate(Round $entity, PreUpdateEventArgs $args): void
     {
         if ($args->hasChangedField('status') && $args->getNewValue('status') == RoundStatus::NEW()) {
@@ -34,30 +45,30 @@ class RoundUpdateListener
 
     public function postPersist(Round $round, LifecycleEventArgs $args)
     {
-        $this->drawCards($args->getEntityManager(), $round);
+        if($round->getGame()->getRoundsCount()==0){
+            $this->drawCards($args->getEntityManager(), $round);
+        }
     }
 
     private function drawCards(EntityManagerInterface $em, Round $round)
     {
-        $activePlayers = [];
-        if(count($round->getPlayersAnswers())){
-            foreach($round->getPlayersAnswers() as $playerCards){
-                $activePlayers[] = $playerCards->player;
-            }
-        } else {
-            $activePlayers = $round->getGame()->getPlayers();
-        }
+        $game = $round->getGame();
+        $players = $game->getPlayers();
+        $limit = $_ENV['CARDS_COUNT'] * count($players);
+        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $limit);
 
-        $cardCount = $_ENV['CARDS_COUNT'] * count($activePlayers) - $round->getCardsPlayedCount();
-        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $cardCount);
-        $newCardsPerPlayer = floor(count($newCards) / count($activePlayers));
-
-        foreach ($activePlayers as $player) {
-            $playerGiven = 0;
-            while (!empty($newCards) && $playerGiven < $newCardsPerPlayer && $player->getCardsCount() < $_ENV['CARDS_COUNT']) {
-                $card = new PlayerCard($player, array_shift($newCards));
-                $em->persist($card);
-                $player->addCard($card);
+        $cardsGiven = true;
+        while(!empty($newCards) && $cardsGiven){
+            $cardsGiven = false;
+            foreach ($players as $player) {
+                if(!empty($newCards) && $player->getCardsCount() < $_ENV['CARDS_COUNT']){
+                    $cardToGive = array_shift($newCards);
+                    $card = new PlayerCard($player, $cardToGive);
+                    $em->persist($card);
+                    $player->addCard($card);
+                    $this->logger->notice('Card given (game: ' . $game->getId() . ', player: ' . $player->getName() . ', card: '.$cardToGive->getId().')');
+                    $cardsGiven = true;
+                }
             }
         }
 
