@@ -18,7 +18,7 @@ class RoundUpdateListener
 {
     public function preUpdate(Round $entity, PreUpdateEventArgs $args): void
     {
-        if($args->hasChangedField('status') && $args->getNewValue('status') == RoundStatus::NEW()){
+        if ($args->hasChangedField('status') && $args->getNewValue('status') == RoundStatus::NEW()) {
             throw new BadRequestHttpException('Cannot update round with new status');
         }
 
@@ -43,13 +43,20 @@ class RoundUpdateListener
         $usedAnswers = $game->getUsedAnswers();
         $cardCount = $_ENV['CARDS_COUNT'] * count($game->getPlayers()) - count($usedAnswers);
         $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($usedAnswers, $cardCount);
-
-        if(count($newCards) < $cardCount){
-            throw new BadRequestHttpException('Not enough cards to continue game');
+        $newCardsPerPlayer = floor(count($newCards) / count($game->getPlayers()));
+        foreach ($newCards as $card) {
+            foreach ($game->getPlayers() as $player) {
+                $playerGiven = 0;
+                while ($playerGiven < $newCardsPerPlayer && $player->getCardsCount() < $_ENV['CARDS_COUNT']) {
+                    $card = new PlayerCard($player, $card);
+                    $em->persist($card);
+                    $player->addCard($card);
+                }
+            }
         }
 
-        foreach($game->getPlayers() as $player){
-            while($player->getCardsCount() < $_ENV['CARDS_COUNT']){
+        foreach ($game->getPlayers() as $player) {
+            while ($player->getCardsCount() < $_ENV['CARDS_COUNT']) {
                 $card = new PlayerCard($player, array_shift($newCards));
                 $em->persist($card);
                 $player->addCard($card);
