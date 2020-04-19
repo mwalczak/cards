@@ -62,7 +62,7 @@ class Round
      * @var RoundCard[]
      *
      * @ORM\OneToMany(targetEntity="App\Entity\RoundCard", mappedBy="round", orphanRemoval=true)
-     * @Groups({"rounds:read"})
+     * @Groups({"rounds:read", "games:read"})
      */
     private $answerCards;
 
@@ -174,7 +174,7 @@ class Round
     /**
      * @return array
      *
-     * @Groups({"rounds:read"})
+     * @Groups({"rounds:read", "games:read"})
      */
     public function getPlayersAnswers(): array
     {
