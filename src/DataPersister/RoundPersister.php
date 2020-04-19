@@ -51,16 +51,15 @@ class RoundPersister implements DataPersisterInterface
         }
 
         if(!$data->getQuestionCard()){
+            /** @var QuestionCard $questionCard */
             $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findRandomOneNotUsed($game->getUsedQuestions());
             $data->setQuestionCard($questionCard);
         }
 
-        //keep 10 cards on players hands
-
         $this->entityManager->persist($data);
         $this->entityManager->flush();
 
-        $this->logger->notice('Round created (game: ' . $data->getGame()->getId() . ')');
+        $this->logger->notice('Round created (game: ' . $data->getGame()->getId() . ', card: '.$data->getQuestionCard()->getId().')');
     }
 
     /**

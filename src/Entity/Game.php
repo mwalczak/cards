@@ -232,6 +232,10 @@ class Game
         return array_values($scores);
     }
 
+    /**
+     * @return int[]
+     * @Groups({"games:read"})
+     */
     public function getUsedQuestions(): array
     {
         $usedQuestions = [];

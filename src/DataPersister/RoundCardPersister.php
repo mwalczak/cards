@@ -45,6 +45,7 @@ class RoundCardPersister implements DataPersisterInterface
             if (!in_array($data->getCard()->getId(), $player->getCardsIds())) {
                 throw new BadRequestHttpException('bad card played');
             }
+            /** @var PlayerCard $playerCard */
             $playerCard = $this->entityManager->getRepository(PlayerCard::class)->findOneBy([
                 'player' => $player,
                 'card' => $data->getCard()
