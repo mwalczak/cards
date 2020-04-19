@@ -55,14 +55,6 @@ class RoundUpdateListener
             }
         }
 
-        foreach ($game->getPlayers() as $player) {
-            while ($player->getCardsCount() < $_ENV['CARDS_COUNT']) {
-                $card = new PlayerCard($player, array_shift($newCards));
-                $em->persist($card);
-                $player->addCard($card);
-            }
-        }
-
         $em->flush();
     }
 }
