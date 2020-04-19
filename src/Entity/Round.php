@@ -3,6 +3,7 @@
 namespace App\Entity;
 
 use ApiPlatform\Core\Annotation\ApiResource;
+use App\DTO\RoundCardDTO;
 use App\Enum\RoundStatus;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
@@ -58,6 +59,8 @@ class Round
     private $winner;
 
     /**
+     * @var RoundCard[]
+     *
      * @ORM\OneToMany(targetEntity="App\Entity\RoundCard", mappedBy="round", orphanRemoval=true)
      * @Groups({"rounds:read"})
      */
@@ -166,5 +169,27 @@ class Round
     public function getCardsPlayedCount(): int
     {
         return count($this->getAnswerCards());
+    }
+
+    /**
+     * @return array
+     *
+     * @Groups({"rounds:read"})
+     */
+    public function getPlayersAnswers(): array
+    {
+        /** @var RoundCardDTO[] $answers */
+        $answers = [];
+
+        foreach ($this->answerCards as $card){
+            $player = $card->getPlayer();
+            if(empty($answers[$player->getId()])){
+                $answers[$player->getId()] = new RoundCardDTO($player, $card->getCard());
+            } else {
+                $answers[$player->getId()]->cards[] = $card->getCard();
+            }
+        }
+
+        return $answers;
     }
 }
