@@ -45,7 +45,7 @@ class RoundUpdateListener
 
     public function postPersist(Round $round, LifecycleEventArgs $args)
     {
-        if($round->getGame()->getRoundsCount()==0){
+        if($round->getGame()->getRoundsCount()==1){
             $this->drawCards($args->getEntityManager(), $round);
         }
     }
