@@ -50,6 +50,8 @@ class RoundPersister implements DataPersisterInterface
             throw new BadRequestHttpException('there are unfinished rounds in this game: '.$unfinishedRounds[0]->getId());
         }
 
+        $game->addRound($data);
+
         if(!$data->getQuestionCard()){
             /** @var QuestionCard $questionCard */
             $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findRandomOneNotUsed($game->getUsedQuestions());

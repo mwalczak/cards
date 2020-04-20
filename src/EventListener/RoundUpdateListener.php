@@ -55,7 +55,7 @@ class RoundUpdateListener
         $game = $round->getGame();
         $players = $game->getPlayers();
         $limit = $_ENV['CARDS_COUNT'] * count($players);
-        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($round->getGame()->getUsedAnswers(), $limit);
+        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($game->getUsedAnswers(), $limit);
 
         $cardsGiven = true;
         while(!empty($newCards) && $cardsGiven){
