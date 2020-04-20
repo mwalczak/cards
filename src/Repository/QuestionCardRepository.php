@@ -19,18 +19,6 @@ class QuestionCardRepository extends ServiceEntityRepository
         parent::__construct($registry, QuestionCard::class);
     }
 
-    public function findRandomOneNotUsed(array $ids): QuestionCard
-    {
-        return $this->createQueryBuilder('q')
-            ->andWhere('q.id NOT IN (:ids)')
-            ->setParameter('ids', implode(',', $ids))
-            ->orderBy('RAND()')
-            ->setMaxResults(1)
-            ->getQuery()
-            ->getOneOrNullResult()
-        ;
-    }
-
     /*
     public function findOneBySomeField($value): ?QuestionCard
     {

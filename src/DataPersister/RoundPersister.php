@@ -38,7 +38,6 @@ class RoundPersister implements DataPersisterInterface
      */
     public function persist($data)
     {
-        //draw question card
         $game = $data->getGame();
 
         $unfinishedRounds = $this->entityManager->getRepository(Round::class)->findBy([
@@ -50,18 +49,8 @@ class RoundPersister implements DataPersisterInterface
             throw new BadRequestHttpException('there are unfinished rounds in this game: '.$unfinishedRounds[0]->getId());
         }
 
-        $game->addRound($data);
-
-        if(!$data->getQuestionCard()){
-            /** @var QuestionCard $questionCard */
-            $questionCard = $this->entityManager->getRepository(QuestionCard::class)->findRandomOneNotUsed($game->getUsedQuestions());
-            $data->setQuestionCard($questionCard);
-        }
-
         $this->entityManager->persist($data);
         $this->entityManager->flush();
-
-        $this->logger->notice('Round created (game: ' . $data->getGame()->getId() . ', card: '.$data->getQuestionCard()->getId().')');
     }
 
     /**

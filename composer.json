@@ -36,8 +36,10 @@
         "ext-json": "*"
     },
     "require-dev": {
+        "dama/doctrine-test-bundle": "^6.3",
         "symfony/debug-pack": "*",
         "symfony/maker-bundle": "^1.0",
+        "symfony/phpunit-bridge": "^5.0",
         "symfony/profiler-pack": "*",
         "symfony/test-pack": "*"
     },

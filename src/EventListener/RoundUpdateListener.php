@@ -6,8 +6,10 @@ namespace App\EventListener;
 
 use App\Entity\AnswerCard;
 use App\Entity\PlayerCard;
+use App\Entity\QuestionCard;
 use App\Entity\Round;
 use App\Enum\RoundStatus;
+use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\EntityManagerInterface;
 use Doctrine\ORM\Event\LifecycleEventArgs;
 use Doctrine\ORM\Event\PreUpdateEventArgs;
@@ -38,40 +40,66 @@ class RoundUpdateListener
         }
     }
 
-    public function postUpdate(Round $round, LifecycleEventArgs $args)
-    {
-        $this->drawCards($args->getEntityManager(), $round);
-    }
-
     public function postPersist(Round $round, LifecycleEventArgs $args)
     {
-        if($round->getGame()->getRoundsCount()==1){
-            $this->drawCards($args->getEntityManager(), $round);
+        $game = $round->getGame();
+        $game->addRound($round);
+
+        $em = $args->getEntityManager();
+
+        if (!$round->getQuestionCard()) {
+            /** @var QuestionCard $questionCard */
+
+            $questionCards = $em->getRepository(QuestionCard::class)->findAll();
+            shuffle($questionCards);
+            do {
+                /** @var QuestionCard $questionToUse */
+                $questionToUse = array_pop($questionCards);
+            } while (!$questionToUse || in_array($questionToUse->getId(), $game->getUsedQuestions()));
+            if($questionToUse){
+                $round->setQuestionCard($questionToUse);
+                $this->logger->notice('Round created (game: ' . $game->getId() . ', round: ' . $round->getId() . ', card: ' . $round->getQuestionCard()->getId() . ')');
+            } else {
+                throw new BadRequestHttpException('No more questions in game');
+            }
         }
+
+        $this->drawCards($em, $round);
+        $em->flush();
     }
 
     private function drawCards(EntityManagerInterface $em, Round $round)
     {
         $game = $round->getGame();
-        $players = $game->getPlayers();
-        $limit = $_ENV['CARDS_COUNT'] * count($players);
-        $newCards = $em->getRepository(AnswerCard::class)->findRandomOneNotUsed($game->getUsedAnswers(), $limit);
+        $cardsInGame = $game->getUsedAnswers();
+        $cardsInGame = array_merge($cardsInGame, $game->getPlayersCards());
+        sort($cardsInGame);
 
-        $cardsGiven = true;
-        while(!empty($newCards) && $cardsGiven){
-            $cardsGiven = false;
+        $this->logger->notice('Cards used (game: ' . $game->getId() . ', round: ' . $round->getId() . ', cards: ' . implode(',', $cardsInGame) . ')');
+
+        $players = $game->getPlayers();
+        /** @var AnswerCard[] $cards */
+        $cards = $em->getRepository(AnswerCard::class)->findAll();
+        shuffle($cards);
+        $this->logger->notice('Cards to give (game: ' . $game->getId() . ', round: ' . $round->getId() . ', cards: '.count($cards).')');
+
+        do {
+            $cardGiven = false;
             foreach ($players as $player) {
-                if(!empty($newCards) && $player->getCardsCount() < $_ENV['CARDS_COUNT']){
-                    $cardToGive = array_shift($newCards);
+                do {
+                    /** @var AnswerCard $cardToGive */
+                    $cardToGive = array_pop($cards);
+                } while (!$cardToGive || in_array($cardToGive->getId(), $cardsInGame));
+
+                if ($cardToGive && $player->getCardsCount() < $_ENV['CARDS_COUNT']) {
                     $card = new PlayerCard($player, $cardToGive);
                     $em->persist($card);
                     $player->addCard($card);
-                    $this->logger->notice('Card given (game: ' . $game->getId() . ', player: ' . $player->getName() . ', card: '.$cardToGive->getId().')');
-                    $cardsGiven = true;
+                    $this->logger->notice('Card given (game: ' . $game->getId() . ', round: ' . $round->getId() . ', player: ' . $player->getName() . ', card: ' . $cardToGive->getId() . ')');
+                    $cardsInGame[] = $cardToGive->getId();
+                    $cardGiven = true;
                 }
             }
-        }
-
-        $em->flush();
+        } while (!empty($cards) && $cardGiven);
     }
 }

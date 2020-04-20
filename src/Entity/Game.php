@@ -253,11 +253,22 @@ class Game
     {
         $usedAnswers = [];
         foreach($this->getRounds() as $round){
-            foreach($round->getAnswerCards() as $answerCard){
-                $usedAnswers[] = $answerCard->getId();
+            foreach($round->getAnswerCards() as $roundCard){
+                $usedAnswers[] = $roundCard->getCard()->getId();
             }
         }
         return $usedAnswers;
+    }
+
+    public function getPlayersCards(): array
+    {
+        $playersCards = [];
+        foreach($this->getPlayers() as $player){
+            foreach($player->getCards() as $playerCard){
+                $playersCards[] = $playerCard->getCard()->getId();
+            }
+        }
+        return $playersCards;
     }
 
     /**

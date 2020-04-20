@@ -59,7 +59,7 @@ class RoundCardPersister implements DataPersisterInterface
             $this->entityManager->persist($data);
             $this->entityManager->flush();
 
-            $this->logger->notice('Card played (game: '.$data->getRound()->getGame()->getId().', player: ' . $data->getPlayer()->getName() . ', card: ' . $data->getCard()->getId() . ')');
+            $this->logger->notice('Card played (game: '.$data->getRound()->getGame()->getId().', round: '.$data->getRound()->getId().', player: ' . $data->getPlayer()->getName() . ', card: ' . $data->getCard()->getId() . ')');
         } catch(\Exception $e){
             throw new BadRequestHttpException($e->getMessage());
         }
