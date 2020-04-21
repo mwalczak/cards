@@ -89,7 +89,7 @@ class RoundUpdateListener
                 do {
                     /** @var AnswerCard $cardToGive */
                     $cardToGive = array_pop($cards);
-                } while (!$cardToGive || in_array($cardToGive->getId(), $cardsInGame));
+                } while ($cardToGive && in_array($cardToGive->getId(), $cardsInGame));
 
                 if ($cardToGive && $player->getCardsCount() < $_ENV['CARDS_COUNT']) {
                     $card = new PlayerCard($player, $cardToGive);
