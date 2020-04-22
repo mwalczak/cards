@@ -192,4 +192,21 @@ class Round
 
         return $answers;
     }
+    /**
+     * @return array
+     *
+     * @Groups({"rounds:read", "games:read"})
+     */
+    public function getWinnerCards(): array
+    {
+        $cards = [];
+        if($this->winner){
+            foreach ($this->answerCards as $card){
+                if($card->getPlayer()->getId() === $this->winner->getId()){
+                    $cards[] = $card->getCard();
+                }
+            }
+        }
+        return $cards;
+    }
 }
