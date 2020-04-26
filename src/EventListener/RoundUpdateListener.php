@@ -55,7 +55,7 @@ class RoundUpdateListener
             do {
                 /** @var QuestionCard $questionToUse */
                 $questionToUse = array_pop($questionCards);
-            } while (!$questionToUse || in_array($questionToUse->getId(), $game->getUsedQuestions()));
+            } while ($questionToUse && in_array($questionToUse->getId(), $game->getUsedQuestions()));
             if($questionToUse){
                 $round->setQuestionCard($questionToUse);
                 $this->logger->notice('Round created (game: ' . $game->getId() . ', round: ' . $round->getId() . ', card: ' . $round->getQuestionCard()->getId() . ')');
