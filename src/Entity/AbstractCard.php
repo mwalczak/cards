@@ -17,9 +17,14 @@ class AbstractCard
 
     /**
      * @ORM\Column(type="string", length=255)
-     *
      */
     protected $value;
+
+    /**
+     * @ORM\Column(type="string", length=15)
+     * @Groups({"rounds:read", "players:read", "games:read"})
+     */
+    protected $type;
 
 
     public function getId(): ?int
@@ -39,6 +44,18 @@ class AbstractCard
         return $this;
     }
 
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
+    }
+
     /**
      * @return string
      *
@@ -46,6 +63,6 @@ class AbstractCard
      */
     public function getImage(): string
     {
-        return '/media/cards/'.$this->value.'.png';
+        return '/media/'.$this->type.'/'.$this->value;
     }
 }

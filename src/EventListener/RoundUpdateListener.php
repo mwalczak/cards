@@ -50,7 +50,9 @@ class RoundUpdateListener
         if (!$round->getQuestionCard()) {
             /** @var QuestionCard $questionCard */
 
-            $questionCards = $em->getRepository(QuestionCard::class)->findAll();
+            $questionCards = $em->getRepository(QuestionCard::class)->findBy([
+                'type' => $game->getType()
+            ]);
             shuffle($questionCards);
             do {
                 /** @var QuestionCard $questionToUse */
@@ -79,7 +81,9 @@ class RoundUpdateListener
 
         $players = $game->getPlayers();
         /** @var AnswerCard[] $cards */
-        $cards = $em->getRepository(AnswerCard::class)->findAll();
+        $cards = $em->getRepository(AnswerCard::class)->findBy([
+            'type' => $game->getType()
+        ]);
         shuffle($cards);
         $this->logger->notice('Cards to give (game: ' . $game->getId() . ', round: ' . $round->getId() . ', cards: '.count($cards).')');
 

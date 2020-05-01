@@ -10,6 +10,7 @@ use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\ORM\Mapping\CustomIdGenerator;
 use Symfony\Component\Serializer\Annotation\Groups;
+use Symfony\Component\Validator\Constraints as Assert;
 
 /**
  *  @ApiResource(
@@ -63,6 +64,13 @@ class Game
      * @Groups({"games:write"})
      */
     private $name;
+
+    /**
+     * @ORM\Column(type="string", length=15)
+     * @Groups({"games:write", "games:read"})
+     * @Assert\NotBlank()
+     */
+    private $type;
 
     public function __construct()
     {
@@ -301,6 +309,18 @@ class Game
         }
 
         return $names;
+    }
+
+    public function getType(): ?string
+    {
+        return $this->type;
+    }
+
+    public function setType(string $type): self
+    {
+        $this->type = $type;
+
+        return $this;
     }
 
 

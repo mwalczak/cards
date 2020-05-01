@@ -3,6 +3,7 @@
 namespace App\Tests\Game;
 
 use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use App\Enum\GameType;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Contracts\HttpClient\HttpClientInterface;
 
@@ -17,9 +18,11 @@ class GameTest extends ApiTestCase
         $this->entityManager = self::$container->get(EntityManagerInterface::class);
     }
 
-    private function createGame(string $playerName = ''): array
+    private function createGame(string $type, string $playerName = ''): array
     {
-        $payload = [];
+        $payload = [
+            'type' => $type
+        ];
         if($playerName){
             $payload['name'] = $playerName;
         }
@@ -116,7 +119,8 @@ class GameTest extends ApiTestCase
         $questionCards = [];
         $answerCards = [];
         $playerName = 'Player1';
-        $game = $this->createGame($playerName);
+        $type = GameType::CARDS();
+        $game = $this->createGame($type, $playerName);
 
         $player2 = $this->joinGame($game['@id'], 'Player2');
         $player3 = $this->joinGame($game['@id'], 'Player3');
@@ -137,6 +141,8 @@ class GameTest extends ApiTestCase
             $round = $this->startRound($game['@id']);
 
             $this->assertNotEmpty($round['questionCard']);
+            $this->assertEquals($type, $round['questionCard']['type']);
+
             echo 'question: '.$round['questionCard']['image'].PHP_EOL;
 
             $this->assertFalse(in_array($round['questionCard']['image'], $questionCards));
@@ -150,6 +156,7 @@ class GameTest extends ApiTestCase
                 $cards = $player['cards'];
                 foreach($cards as $card){
                     $roundCards[] = $card['card']['@id'];
+                    $this->assertEquals($type, $card['card']['type']);
                 }
 //                echo 'cards count: '.count($roundCards).PHP_EOL;
                 $roundCards = array_unique($roundCards);

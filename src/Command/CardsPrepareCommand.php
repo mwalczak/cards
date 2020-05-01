@@ -18,19 +18,13 @@ class CardsPrepareCommand extends Command
     protected static $defaultName = 'app:cards:prepare';
     private string $sourceDir;
     private string $destDir;
-    private int $marginLeft = 40;
-    private int $marginTop = 170;
-    private int $cardWidth = 395;
-    private int $cardHeight = 395;
-    private int $cardsColumns = 4;
-    private int $cardsRows = 5;
     private EntityManagerInterface $entityManager;
 
     public function __construct(EntityManagerInterface $entityManager)
     {
         parent::__construct();
         $this->sourceDir = dirname(__FILE__,3).'/files/';
-        $this->destDir = dirname(__FILE__,3).'/public/media/cards/';
+        $this->destDir = dirname(__FILE__,3).'/public/media/';
         $this->entityManager = $entityManager;
     }
 
@@ -38,8 +32,7 @@ class CardsPrepareCommand extends Command
     {
         $this
             ->setDescription('Card slasher')
-            ->addArgument('type', InputArgument::REQUIRED, 'Card type (white|black)')
-            ->addArgument('limit', InputArgument::REQUIRED, 'Card limit (white=155|black=53)')
+            ->addArgument('type', InputArgument::REQUIRED, 'Card type (cards|memes)')
         ;
     }
 
@@ -47,35 +40,23 @@ class CardsPrepareCommand extends Command
     {
         $io = new SymfonyStyle($input, $output);
         $type = $input->getArgument('type');
-        $limit = $input->getArgument('limit');
 
         try {
             if ($type) {
-                $io->note(sprintf('You passed an argument: %s', $type));
+                $io->note(sprintf('Importing type: %s', $type));
             }
-            $cardIndex = 1;
-            foreach (glob($this->sourceDir.$type.'*') as $cardsFile) {
-                $io->note(sprintf('Processing file: %s', $cardsFile));
-
-                $im = imagecreatefromjpeg($cardsFile);
-                for($row = 0; $row < $this->cardsRows; $row++){
-                    for($col = 0; $col < $this->cardsColumns; $col++){
-                        $im2 = imagecrop($im, ['x' => $this->marginLeft + $col * $this->cardWidth, 'y' => $this->marginTop + $row * $this->cardHeight, 'width' => $this->cardWidth, 'height' => $this->cardHeight]);
-                        if ($im2 !== false) {
-                            if($cardIndex <= $limit){
-                                $fileName = $type.str_pad($cardIndex++, 3, '0', STR_PAD_LEFT);
-                                $io->note(sprintf('Saving file: %s', $fileName));
-                                imagepng($im2, $this->destDir.$fileName.'.png');
-                                $card = CardFactory::create($type);
-                                $card->setValue($fileName);
-                                $this->entityManager->persist($card);
-                            }
-                            imagedestroy($im2);
-                        }
-                    }
+            foreach(['questions', 'answers'] as $cardType){
+                foreach (glob($this->sourceDir.$type.'/'.$cardType.'/*') as $cardFile) {
+                    $io->note(sprintf('Processing file: %s', $cardFile));
+                    $mediaFile = $cardType.'/'.basename($cardFile);
+                    copy($cardFile, $this->destDir.$type.'/'.$mediaFile);
+                    $card = CardFactory::create($cardType);
+                    $card->setValue($mediaFile);
+                    $card->setType($type);
+                    $this->entityManager->persist($card);
                 }
-                imagedestroy($im);
             }
+
             $this->entityManager->flush();
             $io->success('Done');
         } catch(BadCardTypeException $e){

@@ -16,6 +16,12 @@
 ###< symfony/phpunit-bridge ###
 docker-compose.yml
 
-/public/media/cards/*
-!/public/media/cards/.gitignore
+/public/media/cards/answers/*
+!/public/media/cards/answers/.gitignore
+/public/media/cards/questions/*
+!/public/media/cards/questions/.gitignore
+/public/media/memes/answers/*
+!/public/media/memes/answers/.gitignore
+/public/media/memes/questions/*
+!/public/media/memes/questions/.gitignore
 /logs

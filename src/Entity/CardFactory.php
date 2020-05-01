@@ -8,12 +8,12 @@ use App\Exception\BadCardTypeException;
 
 class CardFactory
 {
-    public static function create(string $type): CardInterface
+    public static function create(string $type): AbstractCard
     {
         switch($type){
-            case 'white':
+            case 'answers':
                 return new AnswerCard();
-            case 'black':
+            case 'questions':
                 return new QuestionCard();
         }
 
