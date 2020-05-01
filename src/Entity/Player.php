@@ -42,7 +42,7 @@ class Player
     /**
      * @ORM\ManyToOne(targetEntity="App\Entity\Game", inversedBy="players")
      * @ORM\JoinColumn(nullable=false)
-     * @Groups({"players:write"})
+     * @Groups({"players:write", "players:read"})
      */
     private $game;
 
